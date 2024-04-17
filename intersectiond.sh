@@ -96,8 +96,8 @@ check_proxy() {
             if networksetup -getairportnetwork en0 | grep -q "Current"; then
                 echo "max attempt reached"
                 osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
-                attempts=0
             fi
+            attempts=0
         fi
         ./sshBridge.sh "$username" "$password" "$server"
     fi

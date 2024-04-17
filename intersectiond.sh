@@ -81,15 +81,24 @@ killAnythingOnPort() {
 killAnythingOnPort
 
 ./sshBridge.sh $username $password $server
-
+attempts=0
 check_proxy() {
     # Don't ask me why libmol haha
     # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
     if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
         echo "SOCKS5:OK"
+        attempts=0
     else
         echo "SOCKS5: No Response, relaunching..."
         killAnythingOnPort
+        ((attempts++))
+        if [ "$attempts" -ge "75" ]; then
+            if networksetup -getairportnetwork en0 | grep -q "Current"; then
+                echo "max attempt reached"
+                osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
+                attempts=0
+            fi
+        fi
         ./sshBridge.sh "$username" "$password" "$server"
     fi
 }

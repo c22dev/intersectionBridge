@@ -1,3 +1,8 @@
+#!/bin/bash
+# installer
+# Constantin Clerc - v0.1
+
+
 self=$(realpath "${BASH_SOURCE[0]}")
 echo "intersectionBridge"
 echo "installer v0.1"

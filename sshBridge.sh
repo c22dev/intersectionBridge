@@ -7,9 +7,10 @@ set password [lindex $argv 1]
 set server [lindex $argv 2]
 
 # Enable host key checking to automatically trust the host
-spawn ssh -o StrictHostKeyChecking=no -D 8080 -C -N $username@$server
+spawn nohup ssh -o StrictHostKeyChecking=no -D 8080 -C -N $username@$server
 
 expect "assword:"
 send "$password\r"
 
+spawn echo "ssh spawned"
 interact

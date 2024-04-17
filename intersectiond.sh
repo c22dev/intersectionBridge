@@ -14,13 +14,42 @@ getPhrase() {
     echo "$input"
 }
 
-username=$(getPhrase "Username" "")
-password=$(getPhrase "Password" "")
-server=$(getPhrase "Server" "")
+cd $HOME
+mkdir Intersection
+cd Intersection
+curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.sh > sshBridge.sh
 
-echo "Username: $username"
-echo "Password: $password"
-echo "Server: $server"
+# Username managing
+if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
+    username=$(basename .storedUsernames/*)
+    password=security find-generic-password -w -s 'intersectionLogins' -a "$username"
+    if [ -d ".storedServers" ] && [ "$(ls -A .storedServers)" ]; then
+        server=$(basename .storedServers/*)
+    else
+        echo An error occured. Please delete .storedUsernames directory.
+        exit
+    fi
+else
+    username=$(getPhrase "Username" "")
+    password=$(getPhrase "Password" "")
+    server=$(getPhrase "Server" "")
+
+    echo "Username: $username"
+    echo "Password: $password"
+    echo "Server: $server"
+
+    choiceStore=$(osascript -e 'button returned of (display dialog "Do you want to keep this password in keychain?" buttons {"Yes", "No"} default button "Yes")')
+    if [ "$choiceStore" = "Yes" ]; then
+        security add-generic-password -s 'intersectionLogins'  -a "$username" -w "$password"
+        rm -rf .storedUsernames
+        mkdir .storedUsernames
+        touch ".storedUsernames/$username"
+        rm -rf .storedServers
+        mkdir .storedServers
+        touch ".storedServers/$server"
+    fi
+fi
+
 
 killAnythingOnPort() {
     local pids=$(lsof -ti :8080)

@@ -1,6 +1,8 @@
 # intersectionBridge
 SOCKS5 SSH Bridge Checker that resists network deconnections
 
+[[EN](https://github.com/c22dev/intersectionBridge/) | [FR](https://github.com/c22dev/intersectionBridge/README_FR.md)]
+
 *dédicace à Seb!*
 
 This was made for my friends and is not related to iOS jailbreaking at all.
@@ -50,3 +52,22 @@ if __name__ == "__main__":
 ```
 
 ## How does this works
+
+This (`sshBridge.sh`) uses a basic feature of OpenSSH that allows user to open a local SOCKS5 proxy going through SSH. This can be easily replicated and isn't the most interesting thing.
+
+The main script (`intersectiond`) wakes up, check and assist sshBridge. Here is what it does:
+1. Check for updates and various stuff about creditentials
+2. Launch sshBridge
+3. Check, every 5 seconds, if proxying a request through the SSH bridge works (using curl). If not, we kill the process and run another instance of it.
+
+The installer (`installer.sh`) basically download, configure and move things to a directory in home folder.
+
+## Common Issues & Error
+
+- You might get an error if the saved server cannot be found (NOFILEINSRVDIR) or that the script cannot connect (MAXATTEMPTREACHEDNW); if so, run the following commands:
+    ```bash
+    rm -rf $HOME/Intersection/.storedServers
+    rm -rf $HOME/Intersection/.storedUsernames
+    ```
+    and restart your mac. You will be asked for creditentials on login.
+

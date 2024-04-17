@@ -4,6 +4,8 @@
 <dict>
    <key>Label</key>
    <string>com.user.loginscript</string>
+   <key>KeepAlive</key>
+   <true/>
    <key>ProgramArguments</key>
    <array><string>/Users/REPLACEUSERHERE/Intersection/intersectiond.sh</string></array>
    <key>RunAtLoad</key>

@@ -12,3 +12,5 @@ awk -v home="$HOME" '{gsub("/Users/REPLACEUSERHERE", home)} 1' "$HOME/Library/La
 launchctl load ~/Library/LaunchAgents/ch.cclerc.intersection.plist
 
 touch "$HOME/.intersectionHasBeenRan"
+
+rm -- "$0"

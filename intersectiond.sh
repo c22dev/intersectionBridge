@@ -33,6 +33,10 @@ curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.
 chmod a+x sshBridge.sh
 
 # Username managing
+# Here, we ask user for it's creditentials on first launch
+# We also propose them to save the pass in Keychain; we save the username and the server in folders so it's easier to check
+# This might not work on restricted Macs.
+
 if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
     username=$(basename .storedUsernames/*)
     password=security find-generic-password -w -s 'intersectionLogins' -a "$username"
@@ -40,6 +44,7 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         server=$(basename .storedServers/*)
     else
         echo An error occured. Please delete .storedUsernames directory.
+        osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving server name. Please delete .storedUsernames directory.\nError Code: NOFILEINSRVDIR"'
         exit
     fi
 else
@@ -63,7 +68,7 @@ else
     fi
 fi
 
-
+# If a process is "taking our reservation" on port 8080, we kill it
 killAnythingOnPort() {
     local pids=$(lsof -ti :8080)
 
@@ -78,6 +83,8 @@ killAnythingOnPort
 ./sshBridge.sh $username $password $server
 
 check_proxy() {
+    # Don't ask me why libmol haha
+    # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
     if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
         echo "SOCKS5:OK"
     else

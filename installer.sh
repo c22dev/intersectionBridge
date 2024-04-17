@@ -1,3 +1,10 @@
+self=$(realpath "${BASH_SOURCE[0]}")
+echo "intersectionBridge"
+echo "installer v0.1"
+echo "made by c22dev/Constantin Clerc\n"
+echo "Warning : This was tested on macOS Sonoma and macOS Ventura. Earlier versions might not work."
+echo "By using this software and other scripts in the repo, you agree to credit the original developer if you republish or make an edit."
+echo "This software and other scripts in the reposhouldn't be sold."
 cd $HOME
 mkdir Intersection
 cd Intersection
@@ -13,4 +20,7 @@ launchctl load ~/Library/LaunchAgents/ch.cclerc.intersection.plist
 
 touch "$HOME/.intersectionHasBeenRan"
 
-rm -- "$0"
+echo "You might want to use a shortcut to quickly launch an instance of MS Edge with the proxy settings using this link:"
+echo "https://www.icloud.com/shortcuts/dd41496b41704c8daa695d629b9584f2"
+echo "If you prefer using your settings for this proxy, it's opened on 127.0.0.1 port 8080 by default."
+rm "$self"

@@ -17,6 +17,22 @@ getPhrase() {
 cd $HOME
 cd Intersection
 
+function check_wifi_connection {
+    local wifi_status=$(networksetup -getairportnetwork en0)
+    if [[ "$wifi_status" == *"You are not associated with an AirPort network"* ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+while true; do
+    if check_wifi_connection; then
+        sleep 1
+        break
+    fi
+    sleep 2
+done
+
 # Auto-self update
 if [ "$(cat .version)" != "$(curl -s "https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version")" ]; then
     echo "You are running an outdated version of the main script."

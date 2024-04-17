@@ -1,7 +1,7 @@
 # intersectionBridge
 SOCKS5 SSH Bridge Checker that resists network deconnections
 
-[[EN](https://github.com/c22dev/intersectionBridge/) | [FR](https://github.com/c22dev/intersectionBridge/README_FR.md)]
+[[EN](https://github.com/c22dev/intersectionBridge/) | [FR](h[ttps://github.com/c22dev/intersectionBridge/README_FR.md](https://github.com/c22dev/intersectionBridge/blob/main/README_FR.md))]
 
 *dédicace à Seb!*
 

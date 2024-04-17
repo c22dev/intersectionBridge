@@ -6,7 +6,7 @@
 self=$(realpath "${BASH_SOURCE[0]}")
 echo "intersectionBridge"
 echo "installer v0.1"
-echo "made by c22dev/Constantin Clerc\n"
+echo "made by c22dev/Constantin Clerc"
 echo "Warning : This was tested on macOS Sonoma and macOS Ventura. Earlier versions might not work."
 echo "By using this software and other scripts in the repo, you agree to credit the original developer if you republish or make an edit."
 echo "This software and other scripts in the reposhouldn't be sold."

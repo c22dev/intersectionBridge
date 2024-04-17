@@ -1,5 +1,5 @@
 # intersectionBridge
-Vérificateur de pont SOCKS5 SSH résistant aux deconnxions résau
+Vérificateur de pont SOCKS5 SSH résistant aux déconnxions résau
 
 [[EN](https://github.com/c22dev/intersectionBridge/) | [FR](https://github.com/c22dev/intersectionBridge/README_FR.md)]
 

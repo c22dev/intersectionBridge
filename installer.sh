@@ -14,7 +14,7 @@ cd $HOME
 mkdir Intersection
 cd Intersection
 curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
-curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
+curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
 chmod a+x intersectiond.sh
 
 cd "$HOME/Library/LaunchAgents/"

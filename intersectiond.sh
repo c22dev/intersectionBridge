@@ -39,7 +39,7 @@ chmod a+x sshBridge.sh
 
 if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
     username=$(basename .storedUsernames/*)
-    password=security find-generic-password -w -s 'intersectionLogins' -a "$username"
+    password=$(security find-generic-password -w -s "intersectionLogins" -a "$username")
     if [ -d ".storedServers" ] && [ "$(ls -A .storedServers)" ]; then
         server=$(basename .storedServers/*)
     else

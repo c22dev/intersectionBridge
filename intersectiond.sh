@@ -33,16 +33,17 @@ while true; do
     sleep 2
 done
 
+#Temp solution, as it blanks the file?
 # Auto-self update
-if [ "$(cat .version)" != "$(curl -s "https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version")" ]; then
-    echo "You are running an outdated version of the main script."
-    echo "Updating..."
-    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
-    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
-    chmod a+x intersectiond.sh
-    ./intersectiond.sh
-    exit
-fi
+#if [ "$(cat .version)" != "$(curl -s "https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version")" ]; then
+#    echo "You are running an outdated version of the main script."
+#    echo "Updating..."
+#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
+#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
+#    chmod a+x intersectiond.sh
+#    ./intersectiond.sh
+#    exit
+#fi
 
 # Download/update required files
 curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.sh > sshBridge.sh

@@ -32,22 +32,6 @@ while true; do
     sleep 2
 done
 
-# Self detect existing usernames
-if [ -f "unblock.sh" ]; then
-    oldpassword=$(grep -oP 'send "\K[^\\]+' "unblock.sh")
-    olduser_server=$(grep -oP 'ssh -D \d+ -C -N \K[^@]+' "unblock.sh")
-    oldserver=$(grep -oP '@\K[^ ]+' "unblock.sh")
-    olduser="${user_server%%-*}"
-    echo "Detected a previous install."
-    echo "Password: $oldpassword"
-    echo "User: $olduser"
-    echo "Server: $oldserver"
-    choiceOld=$(osascript -e 'button returned of (display dialog "Detected an old configuration. Do you want to use the following creditentials?" buttons {"Yes", "No"} default button "Yes")')
-    if [ "$choiceOld" = "Yes" ]; then
-        
-    fi
-fi
-
 cd Intersection
 
 #Temp solution, as it blanks the file?
@@ -77,6 +61,24 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving server name. Please delete .storedUsernames directory.\nError Code: NOFILEINSRVDIR"'
         exit
     fi
+fi
+if [ -f "unblock.sh" ]; then
+    cd $HOME
+    oldpassword=$(grep -oP 'send "\K[^\\]+' "unblock.sh")
+    olduser_server=$(grep -oP 'ssh -D \d+ -C -N \K[^@]+' "unblock.sh")
+    oldserver=$(grep -oP '@\K[^ ]+' "unblock.sh")
+    olduser="${user_server%%-*}"
+    echo "Detected a previous install."
+    echo "Password: $oldpassword"
+    echo "User: $olduser"
+    echo "Server: $oldserver"
+    choiceOld=$(osascript -e 'button returned of (display dialog "Detected an old configuration. Do you want to use the following creditentials?" buttons {"Yes", "No"} default button "Yes")')
+    if [ "$choiceOld" = "Yes" ]; then
+        username=olduser
+        password=oldpassword
+        server=oldserver
+    fi
+    cd Intersection
 else
     username=$(getPhrase "Username" "")
     password=$(getPhrase "Password" "")

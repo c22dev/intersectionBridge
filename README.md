@@ -7,6 +7,7 @@ SOCKS5 SSH Bridge Checker that resists network deconnections
 
 This was made for my friends and is not related to iOS jailbreaking at all.
 
+If you are interested in using the alpha version, check the [dev branch](https://github.com/c22dev/intersectionBridge/tree/dev).
 ## Installation
 
 To install intersectionBridge (intersectiond), you have two possibilities :
@@ -70,4 +71,4 @@ The installer (`installer.sh`) basically download, configure and move things to 
     rm -rf $HOME/Intersection/.storedUsernames
     ```
     and restart your mac. You will be asked for creditentials on login.
-
+- The sshBridge might break if a network error occurs during the first run. This has been [addressed](https://github.com/c22dev/intersectionBridge/commit/ad851f1c527e8cad517b391edede829d973bc8a7) and [fixed](https://github.com/c22dev/intersectionBridge/commit/5678d1a97907c12294da40d8620ab04751be2673) in dev branch

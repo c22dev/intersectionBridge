@@ -45,10 +45,6 @@ done
 #    exit
 #fi
 
-# Download/update required files
-curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.sh > sshBridge.sh
-chmod a+x sshBridge.sh
-
 # Username managing
 # Here, we ask user for it's creditentials on first launch
 # We also propose them to save the pass in Keychain; we save the username and the server in folders so it's easier to check

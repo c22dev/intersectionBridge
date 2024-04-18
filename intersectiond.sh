@@ -34,18 +34,6 @@ done
 
 cd Intersection
 
-#Temp solution, as it blanks the file?
-# Auto-self update
-#if [ "$(cat .version)" != "$(curl -s "https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version")" ]; then
-#    echo "You are running an outdated version of the main script."
-#    echo "Updating..."
-#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
-#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
-#    chmod a+x intersectiond.sh
-#    ./intersectiond.sh
-#    exit
-#fi
-
 # Username managing
 # Here, we ask user for it's creditentials on first launch
 # We also propose them to save the pass in Keychain; we save the username and the server in folders so it's easier to check
@@ -62,6 +50,7 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         exit
     fi
 fi
+
 if [ -f "unblock.sh" ]; then
     cd $HOME
     oldpassword=$(grep -oP 'send "\K[^\\]+' "unblock.sh")
@@ -114,17 +103,17 @@ killAnythingOnPort
 
 ./sshBridge.sh $username $password $server
 attempts=0
+untilUpdTime=0
 check_proxy() {
     # Don't ask me why libmol haha
     # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
     if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
         echo "SOCKS5:OK"
-        attempts=0
     else
         echo "SOCKS5: No Response, relaunching..."
         killAnythingOnPort
         ((attempts++))
-        if [ "$attempts" -ge "75" ]; then
+        if [ "$attempts" -ge "10" ]; then
             if networksetup -getairportnetwork en0 | grep -q "Current"; then
                 echo "max attempt reached"
                 osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
@@ -132,6 +121,11 @@ check_proxy() {
             attempts=0
         fi
         ./sshBridge.sh "$username" "$password" "$server"
+    fi
+    ((untilUpdTime++))
+    if [ "$untilUpdTime" -ge "360" ]; then
+        ./updater.sh
+        untilUpdTime=0
     fi
 }
 

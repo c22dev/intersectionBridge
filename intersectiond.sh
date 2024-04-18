@@ -15,7 +15,6 @@ getPhrase() {
 }
 
 cd $HOME
-cd Intersection
 
 function check_wifi_connection {
     local wifi_status=$(networksetup -getairportnetwork en0)
@@ -32,6 +31,24 @@ while true; do
     fi
     sleep 2
 done
+
+# Self detect existing usernames
+if [ -f "unblock.sh" ]; then
+    oldpassword=$(grep -oP 'send "\K[^\\]+' "unblock.sh")
+    olduser_server=$(grep -oP 'ssh -D \d+ -C -N \K[^@]+' "unblock.sh")
+    oldserver=$(grep -oP '@\K[^ ]+' "unblock.sh")
+    olduser="${user_server%%-*}"
+    echo "Detected a previous install."
+    echo "Password: $oldpassword"
+    echo "User: $olduser"
+    echo "Server: $oldserver"
+    choiceOld=$(osascript -e 'button returned of (display dialog "Detected an old configuration. Do you want to use the following creditentials?" buttons {"Yes", "No"} default button "Yes")')
+    if [ "$choiceOld" = "Yes" ]; then
+        
+    fi
+fi
+
+cd Intersection
 
 #Temp solution, as it blanks the file?
 # Auto-self update

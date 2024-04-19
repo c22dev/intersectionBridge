@@ -15,7 +15,6 @@ getPhrase() {
 }
 
 cd $HOME
-cd Intersection
 
 function check_wifi_connection {
     local wifi_status=$(networksetup -getairportnetwork en0)
@@ -33,21 +32,7 @@ while true; do
     sleep 2
 done
 
-#Temp solution, as it blanks the file?
-# Auto-self update
-#if [ "$(cat .version)" != "$(curl -s "https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version")" ]; then
-#    echo "You are running an outdated version of the main script."
-#    echo "Updating..."
-#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
-#    curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
-#    chmod a+x intersectiond.sh
-#    ./intersectiond.sh
-#    exit
-#fi
-
-# Download/update required files
-curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.sh > sshBridge.sh
-chmod a+x sshBridge.sh
+cd Intersection
 
 # Username managing
 # Here, we ask user for it's creditentials on first launch
@@ -64,6 +49,25 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving server name. Please delete .storedUsernames directory.\nError Code: NOFILEINSRVDIR"'
         exit
     fi
+fi
+
+if [ -f "unblock.sh" ]; then
+    cd $HOME
+    oldpassword=$(grep -oP 'send "\K[^\\]+' "unblock.sh")
+    olduser_server=$(grep -oP 'ssh -D \d+ -C -N \K[^@]+' "unblock.sh")
+    oldserver=$(grep -oP '@\K[^ ]+' "unblock.sh")
+    olduser="${user_server%%-*}"
+    echo "Detected a previous install."
+    echo "Password: $oldpassword"
+    echo "User: $olduser"
+    echo "Server: $oldserver"
+    choiceOld=$(osascript -e 'button returned of (display dialog "Detected an old configuration. Do you want to use the following creditentials?" buttons {"Yes", "No"} default button "Yes")')
+    if [ "$choiceOld" = "Yes" ]; then
+        username=olduser
+        password=oldpassword
+        server=oldserver
+    fi
+    cd Intersection
 else
     username=$(getPhrase "Username" "")
     password=$(getPhrase "Password" "")
@@ -99,17 +103,17 @@ killAnythingOnPort
 
 ./sshBridge.sh $username $password $server
 attempts=0
+untilUpdTime=0
 check_proxy() {
     # Don't ask me why libmol haha
     # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
     if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
         echo "SOCKS5:OK"
-        attempts=0
     else
         echo "SOCKS5: No Response, relaunching..."
         killAnythingOnPort
         ((attempts++))
-        if [ "$attempts" -ge "75" ]; then
+        if [ "$attempts" -ge "10" ]; then
             if networksetup -getairportnetwork en0 | grep -q "Current"; then
                 echo "max attempt reached"
                 osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
@@ -117,6 +121,11 @@ check_proxy() {
             attempts=0
         fi
         ./sshBridge.sh "$username" "$password" "$server"
+    fi
+    ((untilUpdTime++))
+    if [ "$untilUpdTime" -ge "360" ]; then
+        ./updater.sh
+        untilUpdTime=0
     fi
 }
 

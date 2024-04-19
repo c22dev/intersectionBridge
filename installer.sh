@@ -17,6 +17,12 @@ curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > 
 curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
 chmod a+x intersectiond.sh
 
+curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/sshBridge.sh > sshBridge.sh
+chmod a+x sshBridge.sh
+
+curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/updater.sh > updater.sh
+chmod a+x updater.sh
+
 cd "$HOME/Library/LaunchAgents/"
 curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/ch.cclerc.intersection.plist > ch.cclerc.intersection.plist
 # Taken from one of my previous code, idk how I wrote that

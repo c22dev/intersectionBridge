@@ -23,6 +23,7 @@ chmod a+x sshBridge.sh
 curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/updater.sh > updater.sh
 chmod a+x updater.sh
 
+mkdir "$HOME/Library/LaunchAgents/"
 cd "$HOME/Library/LaunchAgents/"
 curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/ch.cclerc.intersection.plist > ch.cclerc.intersection.plist
 # Taken from one of my previous code, idk how I wrote that

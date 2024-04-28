@@ -1,5 +1,5 @@
 #!/usr/bin/expect -f
-# Constantin CLERC - v0.2
+# Constantin CLERC - v0.3
 
 # Parse command-line arguments
 set username [lindex $argv 0]

@@ -132,7 +132,7 @@ check_proxy() {
             fi
             attempts=0
         fi
-        ./sshBridge.sh "$username" "$password" "$server" $port
+        ./sshBridge.sh "$username" "$password" "$server" "$port"
     fi
     ((untilUpdTime++))
     if [ "$untilUpdTime" -ge "360" ]; then

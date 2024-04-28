@@ -63,6 +63,7 @@ The main script (`intersectiond`) wakes up, check and assist sshBridge. Here is 
 
 The installer (`installer.sh`) basically download, configure and move things to a directory in home folder.
 
+The updater (`updater.sh`) runs every 30mins.
 ## Common Issues & Error
 
 - You might get an error if the saved server cannot be found (NOFILEINSRVDIR) or that the script cannot connect (MAXATTEMPTREACHEDNW); if so, run the following commands:
@@ -71,4 +72,3 @@ The installer (`installer.sh`) basically download, configure and move things to 
     rm -rf $HOME/Intersection/.storedUsernames
     ```
     and restart your mac. You will be asked for creditentials on login.
-- The sshBridge might break if a network error occurs during the first run. This has been [addressed](https://github.com/c22dev/intersectionBridge/commit/ad851f1c527e8cad517b391edede829d973bc8a7) and [fixed](https://github.com/c22dev/intersectionBridge/commit/5678d1a97907c12294da40d8620ab04751be2673) in dev branch

@@ -1,6 +1,6 @@
 #!/bin/bash
 # intersectiond
-# Constantin Clerc - v0.1
+# Constantin Clerc - v0.2
 
 # The redistribution of this code and any other in this repository isn't allowed if the author isn't credited.
 
@@ -73,6 +73,7 @@ if [ -f "unblock.sh" ]; then
         username=olduser
         password=oldpassword
         server=oldserver
+        port=22
     fi
     cd Intersection
 else
@@ -87,7 +88,8 @@ else
 
     choiceStore=$(osascript -e 'button returned of (display dialog "Do you want to keep this password in keychain?" buttons {"Yes", "No"} default button "Yes")')
     if [ "$choiceStore" = "Yes" ]; then
-        security add-generic-password -s 'intersectionLogins'  -a "$username" -w "$password"
+        security delete-generic-password -s 'intersectionLogins' -a "$username"
+        security add-generic-password -s 'intersectionLogins' -a "$username" -w "$password"
         rm -rf .storedUsernames
         mkdir .storedUsernames
         touch ".storedUsernames/$username"
@@ -111,7 +113,7 @@ killAnythingOnPort() {
 }
 killAnythingOnPort
 
-./sshBridge.sh $username $password $server
+./sshBridge.sh $username $password $server $port
 attempts=0
 untilUpdTime=0
 check_proxy() {
@@ -130,7 +132,7 @@ check_proxy() {
             fi
             attempts=0
         fi
-        ./sshBridge.sh "$username" "$password" "$server"
+        ./sshBridge.sh "$username" "$password" "$server" $port
     fi
     ((untilUpdTime++))
     if [ "$untilUpdTime" -ge "360" ]; then

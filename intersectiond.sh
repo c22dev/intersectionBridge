@@ -49,6 +49,13 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving server name. Please delete .storedUsernames directory.\nError Code: NOFILEINSRVDIR"'
         exit
     fi
+    if [ -d ".storedPorts" ] && [ "$(ls -A .storedPorts)" ]; then
+        port=$(basename .storedPorts/*)
+    else
+        echo An error occured. Please delete .storedUsernames directory.
+        osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving port. Please delete .storedUsernames directory.\nError Code: NOFILEINPRTDIR"'
+        exit
+    fi
 fi
 
 if [ -f "unblock.sh" ]; then
@@ -72,10 +79,11 @@ else
     username=$(getPhrase "Username" "")
     password=$(getPhrase "Password" "")
     server=$(getPhrase "Server" "")
-
+    port=$(getPhrase "Port" "")
     echo "Username: $username"
     echo "Password: $password"
     echo "Server: $server"
+    echo "Server: $port"
 
     choiceStore=$(osascript -e 'button returned of (display dialog "Do you want to keep this password in keychain?" buttons {"Yes", "No"} default button "Yes")')
     if [ "$choiceStore" = "Yes" ]; then
@@ -86,6 +94,8 @@ else
         rm -rf .storedServers
         mkdir .storedServers
         touch ".storedServers/$server"
+        mkdir .storedPorts
+        touch ".storedPorts/$port"
     fi
 fi
 

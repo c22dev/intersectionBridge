@@ -52,19 +52,26 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
     if [ -d ".storedPorts" ] && [ "$(ls -A .storedPorts)" ]; then
         port=$(basename .storedPorts/*)
     else
-        echo An error occured. Please delete .storedUsernames directory.
-        osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving port. Please delete .storedUsernames directory.\nError Code: NOFILEINPRTDIR"'
-        exit
+        echo An error occured. Setting default port
+        port=22
+    fi
+    if [ -d ".exclusiveWifi" ] && [ "$(ls -A .exclusiveWifi)" ]; then
+        onlyOnNetwork=$(basename .exclusiveWifi/*)
+    else
+        echo An error occured. Setting current network.
+        onlyOnNetwork=$(networksetup -getairportnetwork en0 | cut -d ':' -f2 | sed 's/^[ ]*//g')  
     fi
 else
     username=$(getPhrase "Username" "")
     password=$(getPhrase "Password" "")
     server=$(getPhrase "Server" "")
     port=$(getPhrase "Port" "")
+    onlyOnNetwork=$(getPhrase "Enter exclusive Wi-FI" "")
     echo "Username: $username"
     echo "Password: $password"
     echo "Server: $server"
     echo "Server: $port"
+    echo "Exclusive Wi-Fi: $onlyOnNetwork"
 
     choiceStore=$(osascript -e 'button returned of (display dialog "Do you want to keep this password in keychain?" buttons {"Yes", "No"} default button "Yes")')
     if [ "$choiceStore" = "Yes" ]; then
@@ -78,6 +85,8 @@ else
         touch ".storedServers/$server"
         mkdir .storedPorts
         touch ".storedPorts/$port"
+        mkdir .exclusiveWifi
+        touch ".exclusiveWifi/$onlyOnNetwork"
     fi
 fi
 
@@ -98,27 +107,30 @@ attempts=0
 untilUpdTime=0
 networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080
 check_proxy() {
-    # Don't ask me why libmol haha
-    # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
-    if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
-        echo "SOCKS5:OK"
+    SSID=$(networksetup -getairportnetwork en0 | cut -d ':' -f2 | sed 's/^[ ]*//g')
+    if [ "$SSID" != "$onlyOnNetwork" ]; then
+        echo "nothing to do. not connected to proper network."
     else
-        echo "SOCKS5: No Response, relaunching..."
-        killAnythingOnPort
-        ((attempts++))
-        if [ "$attempts" -ge "10" ]; then
-            if networksetup -getairportnetwork en0 | grep -q "Current"; then
-                echo "max attempt reached"
-                osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
+        if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
+            echo "SOCKS5:OK"
+        else
+            echo "SOCKS5: No Response, relaunching..."
+            killAnythingOnPort
+            ((attempts++))
+            if [ "$attempts" -ge "10" ]; then
+                if networksetup -getairportnetwork en0 | grep -q "Current"; then
+                    echo "max attempt reached"
+                    osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
+                fi
+                attempts=0
             fi
-            attempts=0
+            ./sshBridge.sh "$username" "$password" "$server" "$port"
         fi
-        ./sshBridge.sh "$username" "$password" "$server" "$port"
-    fi
-    ((untilUpdTime++))
-    if [ "$untilUpdTime" -ge "360" ]; then
-        ./updater.sh
-        untilUpdTime=0
+        ((untilUpdTime++))
+        if [ "$untilUpdTime" -ge "360" ]; then
+            ./updater.sh
+            untilUpdTime=0
+        fi
     fi
 }
 

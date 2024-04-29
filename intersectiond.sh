@@ -116,6 +116,7 @@ killAnythingOnPort
 ./sshBridge.sh $username $password $server $port
 attempts=0
 untilUpdTime=0
+networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080
 check_proxy() {
     # Don't ask me why libmol haha
     # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.

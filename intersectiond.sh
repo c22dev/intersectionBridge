@@ -120,7 +120,7 @@ check_proxy() {
             networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
             killAnythingOnPort
             ((attempts++))
-            if [ "$attempts" -ge "10" ]; then
+            if [ "$attempts" -ge "20" ]; then
                 if networksetup -getairportnetwork en0 | grep -q "Current"; then
                     echo "max attempt reached"
                     osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'

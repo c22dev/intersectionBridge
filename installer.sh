@@ -33,7 +33,7 @@ launchctl load ~/Library/LaunchAgents/ch.cclerc.intersection.plist
 touch "$HOME/.intersectionHasBeenRan"
 
 echo "You might want to use a shortcut to quickly launch an instance of MS Edge with the proxy settings using this link:"
-echo "https://www.icloud.com/shortcuts/dd41496b41704c8daa695d629b9584f2"
+echo "https://www.icloud.com/shortcuts/56135d37e9de493091315d9757e03570"
 echo "If you prefer using your settings for this proxy, it's opened on 127.0.0.1 port 8080 by default."
 echo "If the installer file wasn't deleted, feel free to do it."
 rm -f "$self"

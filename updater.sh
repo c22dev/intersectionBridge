@@ -20,7 +20,7 @@ if curl -I --socks5-hostname localhost:8080 github.com --max-time 10 >/dev/null 
                 sizeOfMain = $(wc -c intersectiond.sh | awk '{print $1}')
                 sizeOfVersion = $(wc -c .version | awk '{print $1}')
                 if [ "$sizeOfMain" -ge "1000" ]; then
-                    print("Size seems correct")
+                    echo Size seems correct
                 else
                     curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
                     chmod a+x intersectiond.sh

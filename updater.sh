@@ -17,23 +17,23 @@ if curl -I --socks5-hostname localhost:8080 github.com --max-time 10 >/dev/null 
             curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
             chmod a+x intersectiond.sh
             doTheSizeChecks() {
-                sizeOfMain = $(wc -c intersectiond.sh | awk '{print $1}')
-                sizeOfVersion = $(wc -c .version | awk '{print $1}')
+                sizeOfMain=$(wc -c intersectiond.sh | awk '{print $1}')
+                sizeOfVersion=$(wc -c .version | awk '{print $1}')
                 if [ "$sizeOfMain" -ge "1000" ]; then
                     echo "Size seems correct"
                 else
                     curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/intersectiond.sh > intersectiond.sh
                     chmod a+x intersectiond.sh
-                    doTheSizeChecks()
+                    doTheSizeChecks
                 fi
                 if [ "$sizeOfVersion" -ge "1" ]; then
-                    print("Size seems correct")
+                    echo "Size seems correct"
                 else
                     curl https://raw.githubusercontent.com/c22dev/intersectionBridge/main/version > .version
-                    doTheSizeChecks()
+                    doTheSizeChecks
                 fi
             }
-            doTheSizeChecks()
+            doTheSizeChecks
             osascript -e 'tell app "loginwindow" to «event aevtrrst»'
         fi
     fi

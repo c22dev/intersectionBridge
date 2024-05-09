@@ -112,7 +112,7 @@ check_proxy() {
         echo "nothing to do. not connected to proper network."
         networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
     else
-        if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
+        if curl -I --socks5-hostname localhost:8080 https://libmol.org/e --max-time 10 >/dev/null 2>&1; then
             echo "SOCKS5:OK"
             networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080 > /dev/null
         else

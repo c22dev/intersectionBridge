@@ -94,15 +94,21 @@ killall ssh
 ./sshBridge.sh $username $password $server $port
 attempts=0
 untilUpdTime=0
+firstSSHKill=0
 networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080 > /dev/null
 check_proxy() {
     SSID=$(networksetup -getairportnetwork en0 | cut -d ':' -f2 | sed 's/^[ ]*//g')
     if [ "$SSID" != "$onlyOnNetwork" ]; then
         echo "nothing to do. not connected to proper network."
         networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
+        if ["$firstSSHKill" == 0]; then
+            killall ssh
+            firstSSHKill=1
+        fi
     else
         if curl -I --socks5-hostname localhost:8080 https://libmol.org/e --max-time 10 >/dev/null 2>&1; then
             echo "SOCKS5:OK"
+            firstSSHKill=0
             networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080 > /dev/null
         else
             echo "SOCKS5: No Response, relaunching..."

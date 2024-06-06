@@ -1,6 +1,6 @@
 #!/bin/bash
 # Updater
-# Constantin Clerc - v0.1
+# Constantin Clerc - v0.2
 # The updater should work no matter the version and won't self update
 
 if curl -I --socks5-hostname localhost:8080 github.com --max-time 10 >/dev/null 2>&1; then

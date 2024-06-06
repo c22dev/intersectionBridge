@@ -89,18 +89,7 @@ else
         touch ".exclusiveWifi/$onlyOnNetwork"
     fi
 fi
-
-# If a process is "taking our reservation" on port 8080, we kill it
-killAnythingOnPort() {
-    local pids=$(lsof -ti :8080)
-
-    if [ -z "$pids" ]; then
-        echo "No processes found running on port $port."
-    else
-        kill -9 $pids
-    fi
-}
-killAnythingOnPort
+killall ssh
 
 ./sshBridge.sh $username $password $server $port
 attempts=0
@@ -118,7 +107,7 @@ check_proxy() {
         else
             echo "SOCKS5: No Response, relaunching..."
             networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
-            killAnythingOnPort
+            killall ssh
             ((attempts++))
             if [ "$attempts" -ge "20" ]; then
                 if networksetup -getairportnetwork en0 | grep -q "Current"; then

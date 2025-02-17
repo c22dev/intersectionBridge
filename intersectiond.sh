@@ -18,7 +18,7 @@ cd $HOME
 
 function check_wifi_connection {
     local wifi_status=$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')
-    if [[ "$wifi_status" == *""* ]]; then
+    if [[ -z "\$wifi_status" ]]; then
         return 1
     else
         return 0

@@ -17,8 +17,8 @@ getPhrase() {
 cd $HOME
 
 function check_wifi_connection {
-    local wifi_status=$(networksetup -getairportnetwork en0)
-    if [[ "$wifi_status" == *"You are not associated with an AirPort network"* ]]; then
+    local wifi_status=$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')
+    if [[ "$wifi_status" == *""* ]]; then
         return 1
     else
         return 0
@@ -59,7 +59,7 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
         onlyOnNetwork=$(basename .exclusiveWifi/*)
     else
         echo An error occured. Setting current network.
-        onlyOnNetwork=$(networksetup -getairportnetwork en0 | cut -d ':' -f2 | sed 's/^[ ]*//g')  
+        onlyOnNetwork=$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')  
     fi
 else
     username=$(getPhrase "Username" "")
@@ -116,7 +116,7 @@ check_proxy() {
             killall ssh
             ((attempts++))
             if [ "$attempts" -ge "20" ]; then
-                if networksetup -getairportnetwork en0 | grep -q "Current"; then
+                if ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}' | grep -q "Current"; then
                     echo "max attempt reached"
                     osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
                 fi

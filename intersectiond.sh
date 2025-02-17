@@ -116,7 +116,7 @@ check_proxy() {
             killall ssh
             ((attempts++))
             if [ "$attempts" -ge "20" ]; then
-                if ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}' | grep -q "Current"; then
+                if [ -n "$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')" ]; then
                     echo "max attempt reached"
                     osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
                 fi

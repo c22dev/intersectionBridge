@@ -17,8 +17,8 @@ getPhrase() {
 cd $HOME
 
 function check_wifi_connection {
-    local wifi_status=$(networksetup -getairportnetwork en0)
-    if [[ "$wifi_status" == *"You are not associated with an AirPort network"* ]]; then
+    local wifi_status=$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')
+    if [[ -z "\$wifi_status" ]]; then
         return 1
     else
         return 0
@@ -52,19 +52,26 @@ if [ -d ".storedUsernames" ] && [ "$(ls -A .storedUsernames)" ]; then
     if [ -d ".storedPorts" ] && [ "$(ls -A .storedPorts)" ]; then
         port=$(basename .storedPorts/*)
     else
-        echo An error occured. Please delete .storedUsernames directory.
-        osascript -e 'display alert "IntersectionBridge - Error" message "An error occured while retrieving port. Please delete .storedUsernames directory.\nError Code: NOFILEINPRTDIR"'
-        exit
+        echo An error occured. Setting default port
+        port=22
+    fi
+    if [ -d ".exclusiveWifi" ] && [ "$(ls -A .exclusiveWifi)" ]; then
+        onlyOnNetwork=$(basename .exclusiveWifi/*)
+    else
+        echo An error occured. Setting current network.
+        onlyOnNetwork=$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')  
     fi
 else
     username=$(getPhrase "Username" "")
     password=$(getPhrase "Password" "")
     server=$(getPhrase "Server" "")
     port=$(getPhrase "Port" "")
+    onlyOnNetwork=$(getPhrase "Enter exclusive Wi-FI" "")
     echo "Username: $username"
     echo "Password: $password"
     echo "Server: $server"
     echo "Server: $port"
+    echo "Exclusive Wi-Fi: $onlyOnNetwork"
 
     choiceStore=$(osascript -e 'button returned of (display dialog "Do you want to keep this password in keychain?" buttons {"Yes", "No"} default button "Yes")')
     if [ "$choiceStore" = "Yes" ]; then
@@ -78,47 +85,50 @@ else
         touch ".storedServers/$server"
         mkdir .storedPorts
         touch ".storedPorts/$port"
+        mkdir .exclusiveWifi
+        touch ".exclusiveWifi/$onlyOnNetwork"
     fi
 fi
-
-# If a process is "taking our reservation" on port 8080, we kill it
-killAnythingOnPort() {
-    local pids=$(lsof -ti :8080)
-
-    if [ -z "$pids" ]; then
-        echo "No processes found running on port $port."
-    else
-        kill -9 $pids
-    fi
-}
-killAnythingOnPort
+killall ssh
 
 ./sshBridge.sh $username $password $server $port
 attempts=0
 untilUpdTime=0
-networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080
+firstSSHKill=0
+networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080 > /dev/null
 check_proxy() {
-    # Don't ask me why libmol haha
-    # Here, we check if proxying a request through the proxy works. If not, we kill the existing process, then launch a new one.
-    if curl -I --socks5-hostname localhost:8080 https://libmol.org/ --max-time 10 >/dev/null 2>&1; then
-        echo "SOCKS5:OK"
-    else
-        echo "SOCKS5: No Response, relaunching..."
-        killAnythingOnPort
-        ((attempts++))
-        if [ "$attempts" -ge "10" ]; then
-            if networksetup -getairportnetwork en0 | grep -q "Current"; then
-                echo "max attempt reached"
-                osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
-            fi
-            attempts=0
+    SSID=$(networksetup -getairportnetwork en0 | cut -d ':' -f2 | sed 's/^[ ]*//g')
+    if [ "$SSID" != "$onlyOnNetwork" ]; then
+        echo "nothing to do. not connected to proper network."
+        networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
+        if ["$firstSSHKill" == 0]; then
+            killall ssh
+            firstSSHKill=1
         fi
-        ./sshBridge.sh "$username" "$password" "$server" "$port"
-    fi
-    ((untilUpdTime++))
-    if [ "$untilUpdTime" -ge "360" ]; then
-        ./updater.sh
-        untilUpdTime=0
+    else
+        if curl -I --socks5-hostname localhost:8080 https://libmol.org/e --max-time 10 >/dev/null 2>&1; then
+            echo "SOCKS5:OK"
+            firstSSHKill=0
+            networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 8080 > /dev/null
+        else
+            echo "SOCKS5: No Response, relaunching..."
+            networksetup -setsocksfirewallproxystate "Wi-Fi" off > /dev/null
+            killall ssh
+            ((attempts++))
+            if [ "$attempts" -ge "20" ]; then
+                if [ -n "$(ipconfig getsummary "$(networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}')" | grep '  SSID : ' | awk -F ': ' '{print $2}')" ]; then
+                    echo "max attempt reached"
+                    osascript -e 'display alert "IntersectionBridge - Connection Error" message "It looks like you are encountering issues with your network. Please ensure you are connected to the internet and that your login has not expired/is valid.\nIf you were provided a 7 day SSH access, make sure to renew it.\nError Code: MAXATTEMPTREACHEDNW"'
+                fi
+                attempts=0
+            fi
+            ./sshBridge.sh "$username" "$password" "$server" "$port"
+        fi
+        ((untilUpdTime++))
+        if [ "$untilUpdTime" -ge "360" ]; then
+            ./updater.sh
+            untilUpdTime=0
+        fi
     fi
 }
 
